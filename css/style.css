@@ -38,4 +38,11 @@ body {
 	background-color: rgb(175, 175, 175);
 }
 
+.sidebar-item {
+    padding: 10px; /* adds inner padding */
+    background: gainsboro; /* background color */
+    border: 1px solid gray; /* border width, style, and color */
+    margin: 5px; /* outer padding */
+}
+
 /* this doesnt upload correctly */

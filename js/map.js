@@ -1,22 +1,70 @@
-// alert('hello javascript alert!')
-// creates an alert pop up on web
+// Global variables
+let map;
+// path to csv data
+let path = "data/dunitz.csv";
+let markers = L.featureGroup();
 
-// console.log('hello console!')
-// creates text in web developer tool section
 
-// starter map code, setView([lat,long,zoom])
-var map = L.map('map').setView([34.0697,-118.4432], 17);
 
-// L stands for leaflet, above says to create a map in a specific area we specified on the web, and allows us to set the 'home' to something we want
+// initialize
+$( document ).ready(function() {
+	createMap();
+	readCSV();
+});
 
-// sets the base map to be the open source one
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-	attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-}).addTo(map);
 
-// creates marker at a specific location and adds to the map also allows us to create a pop up with a text and tells it to automatically open the popup
-var marker = L.marker([34.0697,-118.4432]).addTo(map)
-		.bindPopup('The Technology Sandbox<br> Where Yoh is sitting this very moment')
-		.openPopup();	
+// create the map
+function createMap(){
+	map = L.map('map').setView([0,0],3);
 
-// there are ways to populate popups and markers for data point in the csv
+	L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+		attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+	}).addTo(map);
+}
+
+
+
+// function to read csv data
+function readCSV(){
+	Papa.parse(path, {
+		header: true,
+		download: true,
+		complete: function(data) {
+			console.log(data);
+			
+			// map the data
+			mapCSV(data);
+
+		}
+	});
+}
+
+function mapCSV(data){
+
+	// circle options
+	let circleOptions = {
+		radius: 5,
+		weight: 1,
+		color: 'white',
+		fillColor: 'dodgerblue',
+		fillOpacity: 1
+	}
+
+	// loop through each entry
+	data.data.forEach(function(item,index){
+		// create a marker
+		let marker = L.circleMarker([item.latitude,item.longitude],circleOptions)
+		.on('mouseover',function(){
+			this.bindPopup(`${item.title}<br><img src="${item.thumbnail_url}">`).openPopup()
+		})
+
+		// add marker to featuregroup
+		markers.addLayer(marker)
+	})
+
+	// add featuregroup to map
+	markers.addTo(map)
+
+	// fit map to markers
+	map.fitBounds(markers.getBounds())
+}
